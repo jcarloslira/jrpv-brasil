@@ -64,10 +64,7 @@ app.post('/api/jrpv/boletos/consultar', async (req, res) => {
     const userToken = authData.token_usuario;
 
     // Step 2: Get boletos using user token
-    const now = new Date();
-    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const elevenMonthsLater = new Date(now.getFullYear(), now.getMonth() + 11, now.getDate());
-    
+    // Always enforce max 365 days interval (Hinova API limit)
     const formatDate = (date) => {
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -75,8 +72,37 @@ app.post('/api/jrpv/boletos/consultar', async (req, res) => {
       return `${day}/${month}/${year}`;
     };
 
-    const startDate = formatDate(oneMonthAgo);
-    const endDate = formatDate(elevenMonthsLater);
+    // Parse date from dd/mm/yyyy format
+    const parseDate = (str) => {
+      const parts = str.split('/');
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    };
+
+    let startDate, endDate;
+    
+    if (req.body.data_vencimento_inicial && req.body.data_vencimento_final) {
+      // Validate that interval doesn't exceed 365 days
+      const reqStart = parseDate(req.body.data_vencimento_inicial);
+      const reqEnd = parseDate(req.body.data_vencimento_final);
+      const diffDays = Math.floor((reqEnd - reqStart) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 365) {
+        // Clamp to 365 days from start date
+        startDate = req.body.data_vencimento_inicial;
+        const clampedEnd = new Date(reqStart.getTime() + 364 * 24 * 60 * 60 * 1000);
+        endDate = formatDate(clampedEnd);
+      } else {
+        startDate = req.body.data_vencimento_inicial;
+        endDate = req.body.data_vencimento_final;
+      }
+    } else {
+      const now = new Date();
+      const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      const elevenMonthsLater = new Date(now.getFullYear(), now.getMonth() + 11, now.getDate());
+
+      startDate = formatDate(oneMonthAgo);
+      endDate = formatDate(elevenMonthsLater);
+    }
 
     const boletosResponse = await fetch(`${HINOVA_BASE_URL}/listar/boleto/periodo`, {
       method: 'POST',
@@ -100,9 +126,38 @@ app.post('/api/jrpv/boletos/consultar', async (req, res) => {
 
     const boletosData = await boletosResponse.json();
 
+    // Transform data to match frontend expected format
+    const transformedData = Array.isArray(boletosData) ? boletosData.map(boleto => {
+      // Determine if boleto is paid
+      const isPago = boleto.situacao_boleto === 'BAIXADO' ? 'S' : 'N';
+      
+      // Check if linha_digitavel is valid (not an error message)
+      const linhaDigitavelValida = boleto.linha_digitavel && 
+        !boleto.linha_digitavel.includes('Não foi possível') &&
+        !boleto.linha_digitavel.includes('Nao foi possivel');
+      
+      // Build dados_pagamento object for the frontend
+      const dados_pagamento = {
+        linha_digitavel: linhaDigitavelValida ? boleto.linha_digitavel : null,
+        codigo_barras: null
+      };
+
+      return {
+        ...boleto,
+        _id: boleto.codigo_boleto || boleto.nosso_numero,
+        pago: isPago,
+        referente: boleto.mes_referente || '',
+        dados_pagamento: dados_pagamento,
+        // Keep original fields as well
+        linha_digitavel: boleto.linha_digitavel,
+        pix: boleto.pix || null,
+        veiculo: boleto.veiculo || []
+      };
+    }) : boletosData;
+
     res.json({
       success: true,
-      data: boletosData
+      data: transformedData
     });
 
   } catch (error) {
