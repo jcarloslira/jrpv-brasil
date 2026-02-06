@@ -26,7 +26,8 @@ app.use((req, res, next) => {
 // API Hinova - Consulta de Boletos com autenticação em 2 etapas
 app.post('/api/jrpv/boletos/consultar', async (req, res) => {
   try {
-    const { cpf } = req.body;
+    // Accept both 'cpf' and 'cpf_associado' formats
+    const cpf = req.body.cpf || req.body.cpf_associado;
 
     if (!cpf) {
       return res.status(400).json({
