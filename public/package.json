@@ -1,0 +1,14 @@
+{
+  "name": "jrpv-brasil",
+  "version": "1.0.0",
+  "description": "JRPV Brasil - Consulta de Boletos",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
