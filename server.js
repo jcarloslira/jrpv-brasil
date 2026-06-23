@@ -38,9 +38,9 @@ app.post('/api/jrpv/boletos/consultar', async (req, res) => {
 
     const cleanCpf = cpf.replace(/\D/g, '');
     const HINOVA_BASE_URL = 'https://api.hinova.com.br/api/sga/v2';
-    const ASSOCIATION_TOKEN = 'gHMvssVMYCJnPYRLvJY7eaEFihqcAnbBOszpG9tcj5VN9KR9jSVGryrmftOc54gHU3Ju5vw7SzLNuZocWjQGbI4ayU8Dyfo7Mf1cUGhKny7O29hqyM7IL1WyeY4fURJ5fCPzwwuQzI8rJLemSSE1gt1fV9hcQv9QeIa9bZHCNla86G4p46PS31b2XtwbU76KpW6fD2nzkQjwPgAlgKhrzGN9';
-    const USER_LOGIN = 'GEANN';
-    const USER_PASSWORD = 'TESTE$44';
+    const ASSOCIATION_TOKEN = 'ab48ad7f43d5faba65b5d6780d975c528afb96cf80af4f1b4933d76df265ca8e8e0ee0022169db20384dd85438aa3d995d938883ce5c59867385c27227f33233c3965090a4ce014ab299762e7c01ad1d31a77540544dbd98ab4373617f510c56';
+    const USER_LOGIN = 'jean';
+    const USER_PASSWORD = 'Naej159';
 
     // Step 1: Authenticate user to get user token
     const authResponse = await fetch(`${HINOVA_BASE_URL}/usuario/autenticar`, {
