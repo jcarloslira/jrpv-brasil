@@ -38,7 +38,7 @@ app.post('/api/jrpv/boletos/consultar', async (req, res) => {
 
     const cleanCpf = cpf.replace(/\D/g, '');
     const HINOVA_BASE_URL = 'https://api.hinova.com.br/api/sga/v2';
-    const ASSOCIATION_TOKEN = 'c85f2689ae233297049e633cf0187ec382163ef79e36354c751f56701299f14c699ec643e0f5cb196bc5240a5703927dcee3b53be8e18689489067d6270d180ee3ed1b515be7043d72ab106abf4d425c5727acf5796cc94a586cf4e469218bd5';
+    const ASSOCIATION_TOKEN = 'gHMvssVMYCJnPYRLvJY7eaEFihqcAnbBOszpG9tcj5VN9KR9jSVGryrmftOc54gHU3Ju5vw7SzLNuZocWjQGbI4ayU8Dyfo7Mf1cUGhKny7O29hqyM7IL1WyeY4fURJ5fCPzwwuQzI8rJLemSSE1gt1fV9hcQv9QeIa9bZHCNla86G4p46PS31b2XtwbU76KpW6fD2nzkQjwPgAlgKhrzGN9';
     const USER_LOGIN = 'GEANN';
     const USER_PASSWORD = 'TESTE$44';
 
